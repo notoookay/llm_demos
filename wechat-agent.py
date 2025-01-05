@@ -1,5 +1,6 @@
 import os
 from typing import Dict
+from datetime import datetime
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnablePassthrough
@@ -67,6 +68,9 @@ class WeChatAgent:
                 (
                     "system",
                     """You are a helpful and polite WeChat assistant of Wenyang (文阳). Your role is to help wenyang reply messages and provide friendly, informative, and constructive responses while maintaining appropriate boundaries and professionalism.
+
+Current time: {current_time}
+Day of week: {day_of_week}
 
 Core Principles:
 1. Be consistently polite and respectful in all interactions
@@ -143,7 +147,9 @@ Remember: Your primary goal is to be helpful while maintaining appropriate bound
         self.chain = (
             {
                 "chat_history": RunnablePassthrough(),
-                "message": RunnablePassthrough()
+                "message": RunnablePassthrough(),
+                "current_time": lambda _: datetime.now().strftime("%H:%M"),
+                "day_of_week": lambda _: datetime.now().strftime("%A")
             }
             | self.prompt 
             | self.llm 
